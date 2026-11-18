@@ -1,0 +1,234 @@
+---
+import Layout from '../layouts/Layout.astro';
+import WhatsAppIcon from '../components/WhatsAppIcon.astro';
+import XmasCard from '../components/XmasCard.astro';
+import {PRODUCTS, COLORS, CHRISTMAS, christmasItems, pieceUrl} from '../data/catalog.js';
+import {BUSINESS, PLACE} from '../data/site.js';
+
+const title = `Hola3D · Impresión 3D a pedido en ${PLACE}`;
+const description = `Impresión 3D a pedido en ${PLACE}, con envíos a todo el país. Llaveros, regalos con nombre, adornos de Navidad y diseños a medida. Pedidos por WhatsApp.`;
+const catalogue = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'Catálogo navideño 2026',
+  itemListElement: christmasItems().map((item, i) => ({'@type': 'ListItem', position: i + 1, name: item.name, url: new URL(pieceUrl(item), Astro.site).href})),
+};
+---
+<Layout title={title} description={description} home schema={[catalogue]}>
+  <Fragment slot="head">
+    <script is:inline>
+      // Intro content starts hidden only when scripts run; if they never finish, show it anyway.
+      document.documentElement.classList.add('js');
+      setTimeout(function () { if (!window.__hola3d) document.documentElement.classList.remove('js'); }, 4000);
+    </script>
+  </Fragment>
+  <canvas slot="stage" class="stage" id="stage" aria-hidden="true"></canvas>
+
+<main>
+  <section class="hero" id="inicio" data-float-field>
+    <div class="hero-sky" aria-hidden="true"><i class="sky"></i></div>
+    <div class="hero-cube" data-cube-slot>
+      <img class="fallback" src="/assets/cubo.svg" alt="">
+    </div>
+    <h1 class="sticker hero-word">Hola<span class="dot">.</span></h1>
+    <div class="hero-copy above">
+      <p class="lead">Somos Hola3D, de {PLACE}. Imprimimos en 3D la pieza que tengas en la cabeza, capa por capa.</p>
+      <div class="actions">
+        <a class="btn btn-yellow" href="#productos">Armar mi pedido</a>
+        <a class="btn btn-white" data-whatsapp href="#pedido" target="_blank" rel="noopener">
+          <WhatsAppIcon />
+          <span data-whatsapp-label>Escribir por WhatsApp</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="xmas" id="navidad" data-snow-field>
+    <div class="xmas-lights" aria-hidden="true"></div>
+    <div class="xmas-head">
+      <div class="xmas-copy above">
+        <h2>Navidad,<br>capa por capa</h2>
+        <p>El catálogo navideño 2026: pesebres, piezas para la mesa y adornos para el árbol, impresos a pedido. Se suman al pedido y se encargan por WhatsApp.</p>
+      </div>
+      <div class="xmas-scene" data-xmas-slot aria-hidden="true"></div>
+    </div>
+    <div class="xmas-list" data-xmas-list>
+      {CHRISTMAS.map((group) => (
+        <div class="xmas-group">
+          <h3 class="above">{group.group}</h3>
+          <div class="xmas-grid">
+            {group.items.map((item) => <XmasCard item={item} />)}
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="process" id="como-funciona">
+    <div class="process-pin">
+      <div class="process-text above">
+        <h2>De la idea<br>a tus manos</h2>
+        <ol class="steps">
+          <li class="is-active">
+            <h3>Primero, la idea.</h3>
+            <p>Una foto, un dibujo o una medida. Con eso alcanza para empezar.</p>
+          </li>
+          <li>
+            <h3>Después, el modelo.</h3>
+            <p>La diseñamos en 3D, con el tamaño y los detalles que necesita.</p>
+          </li>
+          <li>
+            <h3>Capa por capa.</h3>
+            <p>La impresora la levanta desde abajo, una capa fina sobre la otra.</p>
+            <p class="layers" aria-hidden="true">Capa <b data-layer>000</b> de 120</p>
+          </li>
+          <li>
+            <h3>Y a tus manos.</h3>
+            <p>Coordinamos la entrega por WhatsApp. Hacemos envíos a todo el país.</p>
+          </li>
+        </ol>
+        <div class="progress" aria-hidden="true"><i class="is-active"></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="process-cube" data-cube-slot></div>
+    </div>
+  </section>
+
+  <section class="band" aria-label="Qué imprimimos">
+    <ul class="visually-hidden">
+      <li>Llaveros</li><li>Regalos con nombre</li><li>Adornos</li><li>Tu idea</li>
+    </ul>
+    <p class="band-row" data-band="-1" aria-hidden="true">
+      <span>Llaveros</span><img src="/assets/cubo.svg" alt=""><span>Regalos con nombre</span><img src="/assets/cubo.svg" alt=""><span>Adornos</span><img src="/assets/cubo.svg" alt=""><span>Tu idea</span><img src="/assets/cubo.svg" alt=""><span>Llaveros</span><img src="/assets/cubo.svg" alt=""><span>Regalos con nombre</span>
+    </p>
+    <p class="band-row" data-band="1" aria-hidden="true">
+      <span>Adornos</span><img src="/assets/cubo.svg" alt=""><span>Tu idea</span><img src="/assets/cubo.svg" alt=""><span>Llaveros</span><img src="/assets/cubo.svg" alt=""><span>Regalos con nombre</span><img src="/assets/cubo.svg" alt=""><span>Adornos</span><img src="/assets/cubo.svg" alt="">
+    </p>
+  </section>
+
+  <section class="shop" id="productos">
+    <div class="shop-head above">
+      <h2>¿Qué imprimimos hoy?</h2>
+      <p>Cada pieza se hace a pedido: se elige, se personaliza y se suma al pedido. El precio de las piezas a medida llega por WhatsApp.</p>
+    </div>
+
+    <div class="shop-grid">
+      <div class="viewer">
+        <div class="tabs above" role="group" aria-label="Piezas" data-tabs>
+          {PRODUCTS.map((p) => <button type="button" data-product={p.id} aria-pressed="false">{p.short}</button>)}
+        </div>
+        <div class="window sky" data-model-slot tabindex="0" role="group" aria-roledescription="visor 3D" aria-label="Vista 3D de la pieza">
+          <span class="hint above">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M18.5 3v4h-4M5.5 21v-4h4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Arrastrar para girar
+          </span>
+        </div>
+      </div>
+
+      <form class="config above" id="config" novalidate>
+        <h3 data-product-name>{PRODUCTS[0].name}</h3>
+        <p class="config-blurb" data-product-blurb>{PRODUCTS[0].blurb}</p>
+
+        <div class="field" data-field="text">
+          <label for="f-text"><span data-text-label>Nombre</span> <small data-text-count></small></label>
+          <input id="f-text" type="text" autocomplete="off" autocapitalize="words" spellcheck="false" aria-describedby="f-text-note">
+          <p class="field-note" id="f-text-note" data-text-note role="status" hidden></p>
+        </div>
+
+        <fieldset class="field" data-field="color">
+          <legend>Color <span class="chosen" data-color-name></span></legend>
+          <div class="swatches" data-swatches>
+            {COLORS.map((c) => (
+              <label title={c.name}><input type="radio" name="color" value={c.id}><span style={`background:${c.hex}`}></span><span class="visually-hidden">{c.name}</span></label>
+            ))}
+          </div>
+        </fieldset>
+
+        <div class="field" data-field="note">
+          <label for="f-note" data-note-label></label>
+          <textarea id="f-note" rows="3" maxlength="300"></textarea>
+        </div>
+
+        <div class="field field-row">
+          <span id="qty-label">Cantidad</span>
+          <div class="stepper" role="group" aria-labelledby="qty-label">
+            <button type="button" data-qty="-1" aria-label="Una menos"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></button>
+            <output data-qty-value aria-live="polite">1</output>
+            <button type="button" data-qty="1" aria-label="Una más"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12M12 6v12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></button>
+          </div>
+        </div>
+
+        <button class="btn btn-yellow btn-wide" type="submit">Sumar al pedido</button>
+      </form>
+
+      <aside class="order above" id="pedido" aria-labelledby="order-title">
+        <div class="tag" data-tag>
+          <span class="tag-hole" aria-hidden="true"></span>
+          <h3 id="order-title">Tu pedido</h3>
+          <p class="tag-empty" data-empty>Todavía no hay piezas. Las que se sumen aparecen acá.</p>
+          <ul class="tag-items" data-items></ul>
+          <p class="tag-total" data-total hidden></p>
+          <p class="tag-line" data-undo hidden>
+            <span data-undo-text></span>
+            <button type="button" class="text-button" data-undo-button>Deshacer</button>
+          </p>
+
+          <div class="tag-filled" data-filled hidden>
+            <div class="tag-fields">
+              <label for="o-name">Tu nombre</label>
+              <input id="o-name" type="text" autocomplete="given-name" autocapitalize="words">
+              <label for="o-note">Comentarios</label>
+              <textarea id="o-note" rows="2" maxlength="400" placeholder="Para cuándo se necesita, medidas, dudas"></textarea>
+            </div>
+
+            <details class="tag-preview">
+              <summary>Ver el mensaje</summary>
+              <pre data-preview></pre>
+            </details>
+
+            <a class="btn btn-ink btn-wide" data-send href="#productos" target="_blank" rel="noopener">
+              <WhatsAppIcon />
+              Enviar pedido
+            </a>
+            <p class="tag-foot">Se abre WhatsApp con el mensaje escrito y no se envía nada hasta confirmarlo ahí. Las piezas a medida se cotizan en el chat, donde también se puede sumar una foto.</p>
+            <p class="tag-line" data-sent hidden>
+              <span>Se abrió WhatsApp con el pedido.</span>
+              <button type="button" class="text-button" data-clear>Vaciar pedido</button>
+            </p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="close">
+    <h2 class="above">¿Y la tuya?</h2>
+    <div class="close-cube" data-cube-slot></div>
+    <div class="close-body above">
+      <p class="lead">Una foto, un dibujo o una medida alcanzan para empezar.</p>
+      <ol class="close-steps">
+        <li>Se elige la pieza</li>
+        <li>Se personaliza</li>
+        <li>Se envía por WhatsApp</li>
+      </ol>
+      <div class="actions">
+      <a class="btn btn-yellow btn-big" data-whatsapp href="#pedido" target="_blank" rel="noopener">
+        <WhatsAppIcon />
+        <span data-whatsapp-label>Escribir por WhatsApp</span>
+      </a>
+      <a class="btn btn-white" href="#productos">Armar mi pedido</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+  <Fragment slot="after">
+<a class="order-bar" href="#pedido" data-bar hidden>
+  <span>Pedido: <b data-count-label></b></span>
+  <span class="order-bar-go">Ver</span>
+</a>
+  </Fragment>
+</Layout>
+
+<script>
+  import '../scripts/main.js';
+</script>

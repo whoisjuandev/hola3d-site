@@ -1,0 +1,20 @@
+{
+  "name": "hola3d-site",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "deploy": "astro build && wrangler deploy"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.5",
+    "astro": "^7.4.12",
+    "gsap": "3.13.0",
+    "three": "0.170.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.164.0"
+  }
+}

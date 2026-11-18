@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "hola3d-site",
+  "compatibility_date": "2026-11-17",
+
+  // Static site: Cloudflare serves the Astro build output directly, no Worker code.
+  "assets": {
+    "directory": "./dist",
+    // Matches `trailingSlash: 'always'` in astro.config.mjs, so URLs equal the canonical ones.
+    "html_handling": "force-trailing-slash"
+  },
+
+  // Serve only from the real domain; a public *.workers.dev copy would be duplicate content.
+  "workers_dev": false,
+  "preview_urls": false,
+
+  // Custom Domains need the hola3d.com.ar zone to be Active in Cloudflare.
+  "routes": [
+    { "pattern": "hola3d.com.ar", "custom_domain": true },
+    { "pattern": "www.hola3d.com.ar", "custom_domain": true }
+  ]
+}

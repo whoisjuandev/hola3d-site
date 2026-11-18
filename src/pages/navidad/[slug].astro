@@ -1,0 +1,108 @@
+---
+import {Image, getImage} from 'astro:assets';
+import Layout from '../../layouts/Layout.astro';
+import WhatsAppIcon from '../../components/WhatsAppIcon.astro';
+import XmasCard from '../../components/XmasCard.astro';
+import {christmasItems, formatPrice, pieceUrl, WHATSAPP} from '../../data/catalog.js';
+import {photoOf} from '../../data/photos.js';
+import {BUSINESS, PLACE} from '../../data/site.js';
+
+export function getStaticPaths() {
+  return christmasItems().map((item) => ({params: {slug: item.slug}, props: {item}}));
+}
+
+const {item} = Astro.props;
+const others = christmasItems().filter((other) => other.id !== item.id && other.group === item.group);
+const rest = christmasItems().filter((other) => other.id !== item.id && other.group !== item.group);
+const more = [...others, ...rest].slice(0, 4);
+
+const price = formatPrice(item.price) + (item.unit ? ` ${item.unit}` : '');
+const title = `${item.name} impreso en 3D · ${price} · Hola3D`;
+const summary = [item.blurb, `Mide ${item.size}.`, item.variants && `Modelos: ${item.variants.join(', ')}.`].filter(Boolean).join(' ');
+const description = `${item.name}, impreso en 3D a pedido en ${PLACE}. ${summary} ${price}. ${BUSINESS.shipping}. Pedidos por WhatsApp.`;
+const share = await getImage({src: photoOf(item), width: 1200, height: 1200, format: 'jpg'});
+const url = new URL(pieceUrl(item), Astro.site).href;
+const message = `Hola Hola3D. Quiero pedir: ${item.name} (${item.size}), ${price}.`;
+const whatsapp = `https://wa.me/${WHATSAPP.number}?text=${encodeURIComponent(message)}`;
+
+const product = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: item.name,
+  description: `${item.name}, impreso en 3D a pedido. ${summary}`,
+  image: new URL(share.src, Astro.site).href,
+  category: `Navidad · ${item.group}`,
+  brand: {'@type': 'Brand', name: BUSINESS.name},
+  offers: {
+    '@type': 'Offer',
+    url,
+    price: item.price,
+    priceCurrency: 'ARS',
+    availability: 'https://schema.org/MadeToOrder',
+    seller: {'@id': new URL('/#negocio', Astro.site).href},
+    areaServed: {'@type': 'Country', name: 'Argentina'},
+  },
+};
+const trail = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {'@type': 'ListItem', position: 1, name: 'Hola3D', item: Astro.site.href},
+    {'@type': 'ListItem', position: 2, name: 'Navidad', item: new URL('/#navidad', Astro.site).href},
+    {'@type': 'ListItem', position: 3, name: item.name, item: url},
+  ],
+};
+---
+<Layout title={title} description={description} image={share.src} themeColor="#F5F0E3" schema={[product, trail]}>
+  <main id="contenido">
+    <section class="piece">
+      <nav class="crumbs" aria-label="Ruta">
+        <a href="/">Hola3D</a> <span aria-hidden="true">›</span> <a href="/#navidad">Navidad</a> <span aria-hidden="true">›</span> <span aria-current="page">{item.name}</span>
+      </nav>
+      <div class="piece-grid">
+        <figure class="piece-photo">
+          <Image src={photoOf(item)} alt={item.alt} widths={[480, 720, 1080]} sizes="(min-width: 56rem) 34rem, 92vw" width={720} height={720} loading="eager" fetchpriority="high" />
+        </figure>
+        <div class="piece-info">
+          <p class="piece-group">Navidad · {item.group}</p>
+          <h1>{item.name}</h1>
+          <p class="piece-price">{formatPrice(item.price)}{item.unit && <small> {item.unit}</small>}</p>
+          <dl class="piece-facts">
+            <div><dt>Medida</dt><dd>{item.size}</dd></div>
+            {item.blurb && <div><dt>Detalle</dt><dd>{item.blurb}</dd></div>}
+            <div><dt>Hecho en</dt><dd>{PLACE}, impreso en 3D a pedido</dd></div>
+            <div><dt>Envíos</dt><dd>A todo el país</dd></div>
+          </dl>
+          {item.variants && (
+            <div class="field">
+              <label for="piece-variant">Modelo</label>
+              <select id="piece-variant" data-variant>
+                {item.variants.map((v) => <option>{v}</option>)}
+              </select>
+            </div>
+          )}
+          <div class="actions">
+            <a class="btn btn-yellow btn-big" href={whatsapp} target="_blank" rel="noopener" data-piece-whatsapp data-message={message}><WhatsAppIcon /><span>Pedir por WhatsApp</span></a>
+            <button type="button" class="btn btn-white" data-piece-add={item.id}><span>Sumar al pedido</span></button>
+          </div>
+          <p class="piece-note" data-piece-added hidden>Sumado. <a href="/#pedido">Ver el pedido</a></p>
+          <p class="piece-foot">Se abre WhatsApp con el mensaje escrito y no se envía nada hasta confirmarlo ahí.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="xmas piece-more">
+      <div class="xmas-group">
+        <h2>Más piezas de Navidad</h2>
+        <div class="xmas-grid">
+          {more.map((other) => <XmasCard item={other} heading="h3" />)}
+        </div>
+        <p><a class="btn btn-white" href="/#navidad">Ver el catálogo completo</a></p>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<script>
+  import '../../scripts/piece.js';
+</script>

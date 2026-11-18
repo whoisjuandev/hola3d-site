@@ -1,0 +1,10 @@
+---
+import WhatsAppIcon from './WhatsAppIcon.astro';
+import {BUSINESS, PLACE} from '../data/site.js';
+---
+<footer class="footer">
+  <p class="footer-mark">Hola3D</p>
+  <p>{BUSINESS.tagline}</p>
+  <p>{PLACE}. {BUSINESS.shipping}.</p>
+  <a class="btn btn-white btn-small" data-whatsapp-plain href="/#pedido" target="_blank" rel="noopener"><WhatsAppIcon />Pedidos por WhatsApp</a>
+</footer>

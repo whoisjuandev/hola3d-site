@@ -1,0 +1,17 @@
+---
+// `home` is true on the landing page, where section links stay on the page.
+const {home = false} = Astro.props;
+const to = (hash) => (home ? hash : `/${hash}`);
+---
+<header class="nav">
+  <a class="brand" href={home ? '#inicio' : '/'} aria-label="Hola3D, inicio">
+    <img src="/assets/cubo.svg" alt="" width="34" height="37">
+    <span>Hola3D</span>
+  </a>
+  <nav class="nav-links" aria-label="Secciones">
+    <a href={to('#navidad')}>Navidad</a>
+    <a href={to('#como-funciona')}>Cómo funciona</a>
+    <a href={to('#productos')}>Productos</a>
+  </nav>
+  <a class="nav-order" href={to('#productos')} data-nav-order><span data-nav-label>Armar pedido</span> <span class="count" data-count hidden>0</span></a>
+</header>

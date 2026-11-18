@@ -1,0 +1,25 @@
+---
+import {Image} from 'astro:assets';
+import {formatPrice, pieceUrl} from '../data/catalog.js';
+import {photoOf} from '../data/photos.js';
+const {item, heading = 'h4'} = Astro.props;
+const Heading = heading;
+---
+<article class="xmas-card above">
+  <a class="xmas-photo" href={pieceUrl(item)} tabindex="-1" aria-hidden="true">
+    <Image src={photoOf(item)} alt={item.alt} widths={[320, 480, 720]} sizes="(min-width: 40rem) 16rem, 46vw" width={720} height={720} loading="lazy" decoding="async" />
+  </a>
+  <div class="xmas-info">
+    <Heading><a href={pieceUrl(item)}>{item.name}</a></Heading>
+    <p class="xmas-detail">{item.size}{item.blurb ? ` · ${item.blurb}` : ''}</p>
+    {item.variants && (
+      <select aria-label={`Modelo de ${item.name}`} data-variant>
+        {item.variants.map((v) => <option>{v}</option>)}
+      </select>
+    )}
+    <div class="xmas-buy">
+      <span class="price">{formatPrice(item.price)}{item.unit && <small> {item.unit}</small>}</span>
+      <button type="button" class="btn btn-yellow btn-small" data-xmas-add={item.id} aria-label={`Sumar ${item.name} al pedido`}><span>Sumar</span></button>
+    </div>
+  </div>
+</article>

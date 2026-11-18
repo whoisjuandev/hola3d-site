@@ -1,0 +1,723 @@
+/* Hola3D landing page. Identity "Cielo": sky, ink outlines, primary colours, Allo. */
+
+@font-face {
+  font-family: Allo;
+  src: url("../assets/AlloVariable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --ink: #1A2A6C;
+  --ink-deep: #0D1740;
+  --sky: #8DD3F7;
+  --paper: #F2F9FE;
+  --white: #FFFFFF;
+  --yellow: #FFC42E;
+  --red: #E63B2E;
+  --blue: #2B4FD1;
+  --soft: #44528F;
+  --rule: #C9E6F8;
+
+  --gutter: clamp(1.125rem, 4vw, 3.5rem);
+  --line: 3px;
+  --radius: 1.5rem;
+  /* Strong ease-out for anything entering or answering a press; ease-in-out for movement on screen. */
+  --out: cubic-bezier(0.23, 1, 0.32, 1);
+  --in-out: cubic-bezier(0.77, 0, 0.175, 1);
+
+  --text: clamp(1.0625rem, 0.98rem + 0.35vw, 1.25rem);
+  --h3: clamp(2rem, 1.3rem + 2.6vw, 3.5rem);
+  --h2: clamp(2.75rem, 1.4rem + 6vw, 6rem);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5.5rem;
+  scrollbar-color: var(--ink) var(--sky);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Allo, system-ui, sans-serif;
+  font-variation-settings: "ROND" 100;
+  font-size: var(--text);
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--ink);
+  background: var(--sky);
+  caret-color: var(--red);
+  overflow-x: clip;
+}
+
+::selection { background: var(--yellow); color: var(--ink); }
+::-webkit-scrollbar { width: 14px; }
+::-webkit-scrollbar-track { background: var(--sky); }
+::-webkit-scrollbar-thumb { background: var(--ink); border-radius: 999px; border: 3px solid var(--sky); }
+
+h1, h2, h3, p, ul, ol, fieldset { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+fieldset { border: 0; min-width: 0; }
+img, svg { display: block; }
+a { color: inherit; text-underline-offset: 0.18em; text-decoration-thickness: 0.09em; }
+button, input, textarea { font: inherit; font-variation-settings: inherit; color: inherit; }
+h2, h3 { font-weight: 900; line-height: 1.02; letter-spacing: -0.01em; text-wrap: balance; }
+
+:focus-visible { outline: var(--line) solid var(--ink); outline-offset: 3px; border-radius: 0.5rem; }
+.shop :focus-visible, .close :focus-visible, .footer :focus-visible, .xmas :focus-visible { outline-color: var(--white); }
+.xmas-card :focus-visible { outline-color: var(--ink); }
+.tag :focus-visible { outline-color: var(--ink); }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+
+.skip {
+  position: fixed; left: 1rem; top: 1rem; z-index: 30;
+  padding: 0.7rem 1.1rem; border-radius: 999px;
+  background: var(--ink); color: var(--white); font-weight: 800; text-decoration: none;
+  transform: translateY(-200%);
+}
+.skip:focus-visible { transform: none; outline-color: var(--yellow); }
+
+.icon { width: 1.3em; height: 1.3em; flex-shrink: 0; }
+
+/* The 3D canvas sits above section backgrounds and below anything marked .above. */
+.stage { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+.above { position: relative; z-index: 2; }
+.no-webgl .stage { display: none; }
+
+/* ---- Sky ------------------------------------------------------------------------------------ */
+.sky {
+  background-color: var(--sky);
+  background-image: url("../assets/sky-tile.svg");
+  background-size: 560px 400px;
+  background-position: 0 40px;
+}
+
+/* ---- Buttons -------------------------------------------------------------------------------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.6em;
+  min-height: 3.25rem; padding: 0.7em 1.5em;
+  border: var(--line) solid var(--ink); border-radius: 999px;
+  font-weight: 800; font-size: 1.0625rem; line-height: 1.1; text-decoration: none; text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s var(--out), box-shadow 0.2s var(--out), background-color 0.2s ease;
+}
+/* Lift only where there is a real pointer; a tap would leave it stuck. */
+@media (hover: hover) {
+  .btn:hover { transform: translateY(-3px); box-shadow: 0 14px 22px -12px rgba(13, 23, 64, 0.6); }
+}
+.btn:active { transform: scale(0.97); box-shadow: none; transition-duration: 0.16s; }
+.btn-yellow { background: var(--yellow); color: var(--ink); }
+.btn-white { background: var(--white); color: var(--ink); }
+.btn-ink { background: var(--ink); color: var(--white); }
+.btn-ink:hover { background: var(--ink-deep); }
+.btn-wide { width: 100%; }
+.actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+
+/* ---- Nav ------------------------------------------------------------------------------------ */
+.nav {
+  position: fixed; z-index: 20; top: max(0.75rem, env(safe-area-inset-top)); left: 50%;
+  translate: -50% 0;
+  width: min(100% - 1.5rem, 46rem);
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.4rem 0.4rem 0.4rem 0.9rem;
+  background: var(--white); border: var(--line) solid var(--ink); border-radius: 999px;
+  box-shadow: 0 12px 24px -16px rgba(13, 23, 64, 0.55);
+}
+.brand { display: flex; align-items: center; min-height: 2.75rem; gap: 0.55rem; font-weight: 900; font-size: 1.3rem; letter-spacing: -0.01em; text-decoration: none; }
+.brand img { width: 2.1rem; height: auto; }
+.nav-links { display: flex; gap: 0.25rem; margin-left: auto; }
+.nav-links a { padding: 0.55rem 0.9rem; border-radius: 999px; font-weight: 700; font-size: 1rem; text-decoration: none; transition: background-color 0.2s; }
+.nav-links a:hover { background: var(--paper); }
+.nav-order {
+  display: flex; align-items: center; gap: 0.5rem;
+  min-height: 2.75rem; padding: 0.4rem 0.5rem 0.4rem 1.1rem;
+  background: var(--yellow); border: var(--line) solid var(--ink); border-radius: 999px;
+  font-weight: 800; font-size: 1rem; text-decoration: none; white-space: nowrap;
+}
+.count[hidden] { display: none; }
+.nav-order:has(.count[hidden]) { padding-right: 1.1rem; }
+.count {
+  display: grid; place-items: center; min-width: 1.75rem; height: 1.75rem; padding: 0 0.4rem;
+  background: var(--ink); color: var(--white); border-radius: 999px;
+  font-size: 0.9rem; font-weight: 800; font-variant-numeric: tabular-nums;
+}
+@media (max-width: 40rem) {
+  .nav-links { display: none; }
+  .nav-order { margin-left: auto; }
+}
+/* The narrowest phones: the name and the button still share one line. */
+@media (max-width: 22.5rem) {
+  .nav { padding-left: 0.7rem; }
+  .brand { font-size: 1.125rem; gap: 0.4rem; }
+  .brand img { width: 1.8rem; }
+  .nav-order { padding-left: 0.85rem; font-size: 0.9375rem; }
+  .nav-order:has(.count[hidden]) { padding-right: 0.85rem; }
+  .btn { padding-inline: 1rem; }
+}
+
+/* ---- Hero ----------------------------------------------------------------------------------- */
+.hero {
+  position: relative; min-height: 100svh; overflow: hidden;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 6.5rem var(--gutter) clamp(1.75rem, 5vh, 3.5rem);
+}
+/* Outlined sticker type: outline is 10% of the size, always ink. One per page. */
+.sticker {
+  font-weight: 900; line-height: 0.9; letter-spacing: 0.02em; color: var(--white);
+  -webkit-text-stroke: 0.1em var(--ink); paint-order: stroke fill;
+  filter: drop-shadow(0 0.045em 0 var(--ink));
+}
+.sticker .dot { color: var(--yellow); }
+.hero-word { position: relative; font-size: min(34vw, 30svh); margin: 0 0 0.12em -0.02em; white-space: nowrap; }
+/* The clouds are their own layer and only ever move by transform. */
+.hero-sky { position: absolute; inset: -22% 0 0; overflow: hidden; }
+.hero-sky i { position: absolute; inset: 0 -560px 0 0; animation: drift 70s linear infinite; }
+@keyframes drift { to { transform: translateX(-560px); } }
+.hero-cube { position: relative; width: min(62vw, 34svh); aspect-ratio: 1; margin: 0 auto auto; }
+.hero-copy { display: flex; flex-direction: column; gap: 1.5rem; max-width: 34rem; }
+.lead { font-size: clamp(1.25rem, 1.05rem + 0.9vw, 1.75rem); font-weight: 700; line-height: 1.3; text-wrap: balance; }
+.fallback { display: none; width: 100%; height: 100%; object-fit: contain; }
+.no-webgl .fallback { display: block; }
+
+/* Phones: a poster. Word, lead and actions first; the cube large below, running off the corner so
+   it reads at full size and points at what comes next. Sizes follow the screen height as well as its
+   width, so the actions stay on the first screen of a short phone. */
+@media (max-width: 55.99rem) {
+  .hero { justify-content: flex-start; padding-top: 5.25rem; padding-bottom: 0; }
+  .hero-word { order: 1; font-size: min(35vw, 22svh); margin-top: 0.05em; }
+  /* The gap under the buttons is fixed: on a small screen the cube slides down, never up over them. */
+  .hero-copy { order: 2; gap: 1rem; margin-bottom: 2rem; }
+  .hero-cube { order: 3; width: min(104vw, 50svh); margin: auto -16vw -8svh auto; }
+  .lead { font-size: clamp(1.0625rem, 3svh, 1.375rem); }
+  .hero .actions { gap: 0.5rem; }
+  .hero .btn { min-height: 3rem; }
+}
+@media (min-width: 56rem) {
+  .hero-word { font-size: min(24vw, 44svh); }
+  .hero-cube { position: absolute; top: 50%; translate: 0 -52%; width: min(38vw, 70svh); right: 1vw; margin: 0; }
+}
+.js .hero-word, .js .hero-copy, .js .nav { visibility: hidden; }
+
+/* ---- Christmas ------------------------------------------------------------------------------
+   The same sky at night: ink field, snow falling (drawn on the 3D canvas), pine green as the one
+   seasonal colour. Prices sit on yellow, as the brand reserves it for them. */
+.xmas {
+  --pine: #1E9E57;
+  position: relative; background: var(--ink); color: var(--white);
+  padding: clamp(4.5rem, 9vw, 7rem) var(--gutter) clamp(5rem, 10vw, 8rem);
+}
+/* Night clouds rise into the daytime sky above. */
+.xmas::before {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: clamp(2rem, 4vw, 3.5rem);
+  background: radial-gradient(ellipse 50% 100% at 50% 100%, var(--ink) 99%, transparent 100%) 0 0 / clamp(6rem, 13vw, 11rem) 100% repeat-x;
+}
+.xmas-head { display: grid; gap: 1.5rem; align-items: center; margin-bottom: clamp(2.5rem, 6vw, 4.5rem); }
+.xmas-copy { display: flex; flex-direction: column; gap: 1.25rem; }
+.xmas h2 { font-size: var(--h2); }
+.xmas-copy p { max-width: 34rem; font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem); }
+.xmas-scene { height: min(24rem, 46svh); }
+.xmas-list { display: grid; gap: clamp(2.5rem, 5vw, 4rem); }
+.xmas-group { display: grid; gap: 1.25rem; }
+.xmas-group h3 { font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem); color: var(--sky); }
+.xmas-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+.xmas-card {
+  display: flex; flex-direction: column; overflow: hidden;
+  background: var(--white); color: var(--ink); border-radius: 1.25rem;
+}
+.xmas-card img { width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; background: var(--rule); }
+.xmas-info { flex: 1; display: flex; flex-direction: column; gap: 0.35rem; padding: 0.85rem 0.85rem 0.9rem; }
+.xmas-info h4 { margin: 0; font-size: 1.0625rem; font-weight: 900; line-height: 1.15; text-wrap: balance; }
+.xmas-detail { font-size: 0.9375rem; font-weight: 600; line-height: 1.3; color: var(--soft); }
+.xmas-info select {
+  width: 100%; min-height: 2.75rem; margin-top: 0.25rem; padding: 0 0.6rem;
+  background: var(--white); color: var(--ink); border: var(--line) solid var(--ink); border-radius: 0.85rem;
+  font: inherit; font-size: 0.9375rem; font-weight: 700;
+}
+.xmas-buy { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; margin-top: auto; padding-top: 0.6rem; }
+.price { font-size: 1.25rem; font-weight: 900; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.price small { font-size: 0.875rem; font-weight: 700; }
+.btn-small { min-height: 2.75rem; padding: 0.4em 1.1em; font-size: 1rem; }
+.xmas-buy .btn { flex: 1 0 auto; }
+/* The button confirms in place: its label swaps for a moment, with a blur to bridge the two words. */
+.xmas-buy .btn span { display: inline-block; transition: filter 0.2s ease, opacity 0.2s ease; }
+.xmas-buy .btn.is-swapping span { filter: blur(3px); opacity: 0; }
+.xmas-buy .btn.is-added { background: var(--pine); color: var(--white); }
+
+@media (min-width: 40rem) {
+  .xmas-grid { grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr)); gap: 1.25rem; }
+  .xmas-info { padding: 1rem 1.1rem 1.1rem; }
+}
+@media (min-width: 56rem) {
+  .xmas-head { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .xmas-scene { height: min(30rem, 60svh); }
+}
+
+/* ---- Process -------------------------------------------------------------------------------- */
+/* The sky ends in a row of cloud tops, so the page rolls from one field into the next. */
+.process { position: relative; background: var(--paper); }
+.process::before {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: clamp(2rem, 4vw, 3.5rem);
+  background: radial-gradient(ellipse 50% 100% at 50% 100%, var(--paper) 99%, transparent 100%) 50% 0 / clamp(5rem, 11vw, 9rem) 100% repeat-x;
+}
+.process-pin {
+  min-height: 100svh; display: grid; gap: 1.5rem;
+  grid-template-rows: minmax(0, 40svh) auto; align-content: start;
+  padding: 5.5rem var(--gutter) 2rem;
+}
+.process-cube { grid-row: 1; min-height: 14rem; }
+.process-text { display: flex; flex-direction: column; gap: clamp(1.25rem, 3vh, 2.5rem); }
+.process h2 { font-size: clamp(2.5rem, 1.6rem + 4vw, 4.75rem); }
+.steps { display: grid; gap: 2rem; }
+.steps li { display: flex; flex-direction: column; gap: 0.5rem; max-width: 28rem; }
+.steps h3 { font-size: clamp(1.625rem, 1.3rem + 1.4vw, 2.5rem); color: var(--blue); }
+.steps p { font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem); line-height: 1.4; }
+.layers {
+  align-self: flex-start; padding: 0.35rem 0.9rem;
+  background: var(--yellow); border: var(--line) solid var(--ink); border-radius: 999px;
+  font-size: 1rem !important; font-weight: 800; font-variant-numeric: tabular-nums;
+}
+.progress { display: none; gap: 0.5rem; }
+.progress i { width: 2.5rem; height: 0.6rem; border: var(--line) solid var(--ink); border-radius: 999px; transition: background-color 0.3s, width 0.5s var(--out); }
+.progress i.is-active { background: var(--ink); width: 4rem; }
+
+/* Pinned mode: one step at a time, swapped as the scroll advances. */
+.pinned .process-pin { height: 100svh; }
+.pinned .steps { gap: 0; }
+.pinned .steps li {
+  grid-area: 1 / 1; opacity: 0; transform: translateY(1.25rem); filter: blur(6px);
+  transition: opacity 0.3s ease, transform 0.5s var(--out), filter 0.3s ease;
+}
+.pinned .steps li.is-active { opacity: 1; transform: none; filter: none; }
+.pinned .progress { display: flex; }
+
+@media (min-width: 56rem) {
+  .process-pin { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); grid-template-rows: none; align-items: center; column-gap: 3rem; padding-top: 6rem; }
+  .process-cube { grid-row: auto; grid-column: 2; height: min(70svh, 44rem); }
+}
+
+/* ---- Band ----------------------------------------------------------------------------------- */
+.band { background: var(--yellow); border-block: var(--line) solid var(--ink); padding: clamp(1.25rem, 3vw, 2.5rem) 0; overflow: hidden; }
+.band-row {
+  display: flex; align-items: center; gap: 0.4em; width: max-content;
+  font-size: clamp(2.75rem, 1.5rem + 6.5vw, 6rem); font-weight: 900; line-height: 1.12; letter-spacing: -0.01em; white-space: nowrap;
+}
+.band-row img { height: 0.72em; width: auto; }
+.band-row[data-band="1"] { margin-left: -42vw; color: var(--blue); }
+
+/* ---- Shop ----------------------------------------------------------------------------------- */
+.shop { overflow-x: clip; background: var(--blue); color: var(--white); padding: clamp(4rem, 9vw, 7.5rem) var(--gutter) clamp(4rem, 8vw, 7rem); }
+.shop-head { display: flex; flex-direction: column; gap: 1rem; margin-bottom: clamp(2rem, 5vw, 3.5rem); }
+.shop-head h2 { font-size: var(--h2); }
+.shop-head p { max-width: 38rem; font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem); }
+.shop-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2.5rem; align-items: start; }
+.shop-grid > * { min-width: 0; }
+
+/* All pieces stay in view: the row wraps instead of scrolling sideways. */
+.tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+.tabs button {
+  min-height: 2.75rem; padding: 0.45rem 1rem;
+  background: transparent; color: var(--white); border: var(--line) solid var(--white); border-radius: 999px;
+  font-weight: 800; font-size: 1rem; cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, transform 0.35s var(--out);
+}
+@media (hover: hover) { .tabs button:hover { transform: translateY(-2px); } }
+.tabs button:active { transform: scale(0.97); }
+.tabs button[aria-pressed="true"] { background: var(--white); color: var(--ink); border-color: var(--ink); }
+
+.window {
+  position: relative; aspect-ratio: 1; max-height: 62svh; width: 100%;
+  border: var(--line) solid var(--ink); border-radius: calc(var(--radius) * 1.4);
+  cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none;
+}
+.window.is-dragging { cursor: grabbing; }
+.hint {
+  position: absolute; left: 50%; bottom: 1rem; translate: -50% 0;
+  display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.9rem;
+  background: var(--white); color: var(--ink); border: var(--line) solid var(--ink); border-radius: 999px;
+  font-size: 0.9375rem; font-weight: 700; white-space: nowrap; pointer-events: none;
+  transition: opacity 0.4s;
+}
+.window.was-turned .hint { opacity: 0; }
+.no-webgl .hint { display: none; }
+.no-webgl .window { display: grid; place-items: center; cursor: default; }
+.no-webgl .window::after { content: "La vista 3D no está disponible en este navegador."; max-width: 14rem; padding: 0.75rem 1rem; background: var(--white); color: var(--ink); border: var(--line) solid var(--ink); border-radius: 1rem; font-weight: 700; text-align: center; }
+
+.config { display: flex; flex-direction: column; gap: 1.5rem; }
+.config h3 { font-size: clamp(1.75rem, 1.3rem + 1.6vw, 2.5rem); }
+.config-blurb { margin-top: -0.9rem; font-size: 1.125rem; }
+.field { display: flex; flex-direction: column; gap: 0.6rem; }
+.field label, .field legend, .field-row > span { font-weight: 800; font-size: 1.0625rem; }
+.field legend { margin-bottom: 0.6rem; }
+.field small, .chosen { font-weight: 600; font-size: 0.9375rem; opacity: 0.85; margin-left: 0.4rem; font-variant-numeric: tabular-nums; }
+.field[hidden] { display: none; }
+.field-row { flex-direction: row; align-items: center; justify-content: space-between; }
+
+input[type="text"], textarea {
+  width: 100%; padding: 0.8rem 1rem;
+  background: var(--white); color: var(--ink);
+  border: var(--line) solid var(--ink); border-radius: 1rem;
+  font-size: 1.125rem; font-weight: 700; line-height: 1.3;
+  resize: vertical;
+}
+input::placeholder, textarea::placeholder { color: #5A6699; font-weight: 500; opacity: 1; }
+input[type="text"]:focus-visible, textarea:focus-visible { outline-offset: 2px; border-radius: 1rem; outline-color: var(--yellow); }
+
+.swatches { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.swatches label { position: relative; display: block; width: 3rem; height: 3rem; cursor: pointer; }
+.swatches input { position: absolute; inset: 0; opacity: 0; cursor: pointer; margin: 0; width: 100%; height: 100%; }
+/* The thin white ring keeps the blue swatch visible on the blue section. */
+.swatches span { display: block; width: 100%; height: 100%; border: var(--line) solid var(--ink); border-radius: 50%; box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.7); transition: transform 0.35s var(--out), box-shadow 0.2s; }
+@media (hover: hover) { .swatches label:hover span { transform: scale(1.08); } }
+.swatches input:checked + span { box-shadow: 0 0 0 3px var(--blue), 0 0 0 6px var(--white); transform: scale(0.92); }
+.swatches input:focus-visible + span { outline: var(--line) solid var(--yellow); outline-offset: 7px; }
+
+.stepper { display: inline-flex; align-items: center; background: var(--white); color: var(--ink); border: var(--line) solid var(--ink); border-radius: 999px; }
+.stepper button { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; background: none; border: 0; border-radius: 50%; cursor: pointer; transition: background-color 0.2s; }
+.stepper button:hover { background: var(--rule); }
+.stepper output { min-width: 2rem; text-align: center; font-weight: 800; font-size: 1.125rem; font-variant-numeric: tabular-nums; }
+.stepper button:disabled { opacity: 0.35; cursor: not-allowed; background: none; }
+.stepper-small .icon { width: 1em; height: 1em; }
+
+/* The order is the brand's hang tag. */
+.order { color: var(--ink); }
+.tag {
+  position: relative; display: flex; flex-direction: column; gap: 1rem;
+  padding: 3.25rem 1.4rem 1.4rem;
+  background: var(--yellow); border: var(--line) solid var(--ink); border-radius: var(--radius);
+  transform: rotate(-1.5deg); transform-origin: 50% 1.4rem;
+  box-shadow: 0 26px 36px -26px rgba(13, 23, 64, 0.75);
+}
+.tag-hole { position: absolute; top: 0.9rem; left: 50%; translate: -50% 0; width: 1.4rem; height: 1.4rem; background: var(--blue); border: var(--line) solid var(--ink); border-radius: 50%; }
+.tag h3 { font-size: 2rem; text-align: center; }
+.tag-empty { padding: 1rem 0; border-block: var(--line) solid var(--ink); font-weight: 600; text-align: center; text-wrap: balance; }
+/* The tag is narrow everywhere: the piece gets a full line, its controls sit on the line below. */
+.tag-items li { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 0.5rem; padding: 0.75rem 0; border-top: var(--line) solid var(--ink); }
+.tag-items .item-text { grid-column: 1 / -1; }
+.tag-items .item-remove { justify-self: end; grid-column: 3; }
+.tag-items li { grid-template-columns: auto 1fr auto; }
+.item-price { justify-self: end; font-weight: 900; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tag-total { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; font-weight: 700; }
+.tag-total[hidden] { display: none; }
+.tag-total b { font-size: 1.375rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.tag-items li:last-child { border-bottom: var(--line) solid var(--ink); }
+.item-text { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
+.item-text b { font-weight: 900; font-size: 1.0625rem; line-height: 1.2; }
+.item-text span { font-size: 0.9375rem; font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+.item-remove { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; background: none; border: 0; border-radius: 50%; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
+.item-remove:hover { background: var(--ink); color: var(--white); }
+.item-remove .icon { width: 1.1em; height: 1.1em; }
+.tag-fields { display: flex; flex-direction: column; gap: 0.4rem; }
+.tag-fields label { font-weight: 800; font-size: 1rem; }
+.tag-fields input, .tag-fields textarea { margin-bottom: 0.4rem; font-size: 1rem; padding: 0.65rem 0.85rem; }
+.tag-fields input:focus-visible, .tag-fields textarea:focus-visible { outline-color: var(--ink); }
+.tag-preview summary { display: inline-flex; align-items: center; min-height: 2.75rem; font-weight: 800; font-size: 1rem; cursor: pointer; text-decoration: underline; text-underline-offset: 0.18em; list-style: none; }
+.tag-preview summary::-webkit-details-marker { display: none; }
+.tag-preview pre {
+  margin: 0.6rem 0 0; padding: 0.85rem 1rem; max-height: 14rem; overflow: auto;
+  background: var(--white); border: var(--line) solid var(--ink); border-radius: 1rem 1rem 1rem 0.25rem;
+  font: inherit; font-size: 0.9375rem; font-weight: 500; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.tag-foot { font-size: 0.9375rem; font-weight: 600; text-align: center; text-wrap: pretty; }
+.tag-filled { display: flex; flex-direction: column; gap: 1rem; }
+.tag-filled[hidden], .tag-line[hidden], .field-note[hidden] { display: none; }
+.tag-line { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; font-size: 0.9375rem; font-weight: 600; }
+.text-button { flex-shrink: 0; min-height: 2.75rem; padding: 0 0.25rem; background: none; border: 0; font-weight: 800; text-decoration: underline; text-underline-offset: 0.18em; cursor: pointer; }
+.field-note { padding: 0.5rem 0.85rem; background: var(--yellow); color: var(--ink); border: var(--line) solid var(--ink); border-radius: 0.85rem; font-size: 0.9375rem; font-weight: 700; }
+
+@media (min-width: 48rem) {
+  .shop-grid { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); column-gap: clamp(2rem, 4vw, 3.5rem); }
+  .order { grid-column: 1 / -1; width: min(100%, 30rem); justify-self: center; }
+}
+@media (min-width: 76rem) {
+  .shop-grid { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr) minmax(19rem, 0.8fr); }
+  .order { grid-column: auto; width: auto; justify-self: stretch; position: sticky; top: 6rem; }
+}
+
+/* ---- Close ---------------------------------------------------------------------------------- */
+.close {
+  background: var(--red); color: var(--white);
+  min-height: 100svh; display: flex; flex-direction: column; gap: 2rem;
+  padding: clamp(5rem, 10vw, 8rem) var(--gutter) clamp(2rem, 6vw, 4rem);
+}
+/* Phones: question, cube, buttons and footer end the page as one screen. */
+@media (max-width: 55.99rem) {
+  .close { min-height: 0; gap: 1.5rem; }
+  .footer { padding-block: 1.5rem; gap: 0.15rem 2rem; }
+  .footer a { padding: 0.5rem 0; }
+}
+.close h2 { font-size: min(14.5vw, 6rem); }
+.close-cube { height: min(13rem, 26svh); }
+@media (min-width: 56rem) {
+  .close { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto 1fr; }
+  .close { height: 100svh; min-height: 40rem; padding-top: 6.5rem; }
+  .close h2 { grid-column: 1 / -1; font-size: min(14vw, 28svh); line-height: 0.95; white-space: nowrap; }
+  .close-cube { grid-column: 2; align-self: stretch; height: auto; min-height: 0; }
+  .close-body { grid-column: 1; grid-row: 2; align-self: end; }
+}
+/* The last ask: what it takes to start, the three moves of an order, and one button that leads. */
+.close-body { display: flex; flex-direction: column; gap: 1.25rem; }
+.close-body .lead { max-width: 30rem; }
+.close-steps { display: flex; flex-direction: column; gap: 0.6rem; margin: 0; padding: 0; list-style: none; counter-reset: step; font-weight: 700; font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem); }
+.close-steps li { display: flex; align-items: center; gap: 0.55rem; counter-increment: step; }
+.close-steps li::before {
+  content: counter(step); display: grid; place-items: center; flex: none; width: 2rem; height: 2rem;
+  border-radius: 50%; background: var(--white); color: var(--ink); font-weight: 900; font-size: 1rem;
+}
+.close .actions { align-items: center; margin-top: 0.5rem; }
+.btn-big { min-height: 4.5rem; padding: 0.7em 1.9em; font-size: clamp(1.375rem, 1.2rem + 0.7vw, 1.75rem); font-weight: 900; }
+@media (max-width: 55.99rem) {
+  .close .actions .btn { width: 100%; }
+  .btn-big { padding-inline: 1em; font-size: 1.25rem; }
+}
+
+/* ---- Footer --------------------------------------------------------------------------------- */
+.footer {
+  position: relative; z-index: 2;
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem 2.5rem;
+  padding: 2.5rem var(--gutter) calc(2.5rem + env(safe-area-inset-bottom));
+  background: var(--ink); color: var(--white); font-weight: 600;
+}
+.footer-mark { font-size: 2rem; font-weight: 900; letter-spacing: -0.01em; margin-right: auto; }
+.footer a { display: inline-block; padding: 0.7rem 0; font-weight: 800; }
+
+/* ---- Order bar (phones) --------------------------------------------------------------------- */
+.order-bar {
+  position: fixed; z-index: 15; left: 0.75rem; right: 0.75rem; bottom: max(0.75rem, env(safe-area-inset-bottom));
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 0.55rem 0.55rem 0.55rem 1.25rem;
+  background: var(--yellow); border: var(--line) solid var(--ink); border-radius: 999px;
+  font-weight: 800; text-decoration: none;
+  box-shadow: 0 16px 28px -14px rgba(13, 23, 64, 0.7);
+  transition: transform 0.5s var(--out), opacity 0.3s;
+}
+.order-bar[hidden] { display: flex; transform: translateY(160%); opacity: 0; pointer-events: none; visibility: hidden; transition: transform 0.5s var(--out), opacity 0.3s, visibility 0s 0.5s; }
+.order-bar-go { padding: 0.5rem 1.1rem; background: var(--ink); color: var(--white); border-radius: 999px; }
+@media (min-width: 76rem) { .order-bar { display: none !important; } }
+
+/* A piece on its way to the order. */
+.flyer { position: fixed; z-index: 25; left: 0; top: 0; width: 2.25rem; height: 2.25rem; margin: -1.125rem; border: var(--line) solid var(--ink); border-radius: 50%; pointer-events: none; }
+
+/* The narrowest phones: three pieces per row and the five colours on one line. */
+@media (max-width: 22.5rem) {
+  .tabs button { padding-inline: 0.8rem; font-size: 0.9375rem; }
+  .swatches { gap: 0.5rem; }
+  .swatches label { width: 2.75rem; height: 2.75rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation: none !important; }
+}
+
+/* ---- Texture: the workshop table --------------------------------------------------------------
+   These rules come last on purpose: they restyle the sections above without touching their layout.
+   Small SVG noise tiles, drawn once by the browser and repeated. */
+:root {
+  --specks-dark: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .05 0 0 0 0 .09 0 0 0 0 .25 2.0 0 0 0 -.86'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  --specks-light: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='7' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1.8 0 0 0 -.8'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  --mottle: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='640' height='640'><filter id='n' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='.012' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .05 0 0 0 0 .09 0 0 0 0 .25 .55 0 0 0 -.2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* One sheet of grain over the whole page, the 3D canvas included, so everything shares a surface. */
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: 40; pointer-events: none;
+  background-image: var(--specks-dark), var(--specks-light);
+  background-size: 220px 220px, 220px 220px;
+  background-position: 0 0, 110px 70px;
+  opacity: 0.45;
+}
+
+/* The workshop table: photos stuck down with tape, a cutting mat under the pieces, squared paper,
+   twine on the tag and a few notes written by hand. */
+:root { --paper: #F5F0E3; --white: #FFFDF7; --rule: #E6E2D2; --hand: "Gochi Hand", "Comic Sans MS", cursive; --tape: rgba(255, 196, 46, 0.86); }
+
+/* Squared paper. */
+.process {
+  background-image:
+    linear-gradient(rgba(43, 79, 209, 0.13) 1.5px, transparent 1.5px),
+    linear-gradient(90deg, rgba(43, 79, 209, 0.13) 1.5px, transparent 1.5px);
+  background-size: 1.75rem 1.75rem;
+}
+/* Cutting mat: a coarse grid every five squares over a fine one. */
+.shop {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.26) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.26) 2px, transparent 2px),
+    linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    var(--mottle);
+  background-size: 7.5rem 7.5rem, 7.5rem 7.5rem, 1.5rem 1.5rem, 1.5rem 1.5rem, 640px 640px;
+}
+:is(.close, .band, .xmas, .footer) { background-image: var(--mottle); }
+
+/* Photos are prints: a white edge, a strip of tape, never quite straight. */
+.xmas-card {
+  overflow: visible; padding: 0.4rem 0.4rem 0; border-radius: 0.3rem; rotate: -1.1deg;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3), 0 18px 22px -14px rgba(0, 0, 0, 0.75);
+}
+.xmas-card:nth-child(3n + 2) { rotate: 0.9deg; }
+.xmas-card:nth-child(3n) { rotate: -0.3deg; }
+.xmas-card img { border-radius: 0.15rem; }
+.xmas-info { padding-inline: 0.5rem; }
+.xmas-card::before,
+.window::before,
+.window::after {
+  content: ""; position: absolute; z-index: 3; width: 4.25rem; height: 1.4rem;
+  background: var(--tape) repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.22) 0 2px, transparent 2px 7px);
+  clip-path: polygon(3% 0, 97% 0, 100% 22%, 97% 42%, 100% 62%, 97% 82%, 100% 100%, 3% 100%, 0 80%, 3% 60%, 0 40%, 3% 20%);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+.xmas-card::before { top: -0.7rem; left: 50%; translate: -50% 0; rotate: -3deg; }
+.xmas-card:nth-child(even)::before { left: 32%; rotate: 4deg; background-color: rgba(230, 59, 46, 0.82); }
+.xmas-card:nth-child(3n)::before { left: 66%; rotate: -6deg; background-color: rgba(141, 211, 247, 0.88); }
+
+/* The viewer is a print taped to the mat. */
+.window { border: 0.55rem solid var(--white); border-radius: 0.4rem; box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3), 0 26px 30px -18px rgba(13, 23, 64, 0.85); rotate: -0.6deg; }
+.window::before { top: -1.1rem; left: -1.6rem; rotate: -38deg; }
+.window::after { top: -1.1rem; right: -1.6rem; rotate: 38deg; }
+
+/* The tag hangs from a loop of twine. */
+.tag { box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3), 0 30px 34px -22px rgba(13, 23, 64, 0.9); }
+.tag::before {
+  content: ""; position: absolute; left: 50%; bottom: calc(100% - 1.75rem); translate: -62% 0; rotate: 7deg;
+  width: 1.9rem; height: 4.5rem; border: 3px solid #EFE2C2; border-bottom: 0; border-radius: 50% 50% 0 0 / 38% 38% 0 0;
+  filter: drop-shadow(0 2px 1px rgba(13, 23, 64, 0.45));
+}
+.tag-empty { font-family: var(--hand); font-size: 1.375rem; font-weight: 400; line-height: 1.3; }
+
+.btn { box-shadow: 0 3px 0 var(--ink); }
+.btn-ink { box-shadow: 0 3px 0 var(--ink-deep); }
+@media (hover: hover) { .btn:hover { transform: translateY(-2px) rotate(-0.6deg); box-shadow: 0 5px 0 var(--ink); } }
+.btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.nav { box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2), 0 14px 20px -14px rgba(13, 23, 64, 0.7); }
+
+/* Notes by hand. They sit in the text flow, so they never land on top of anything. */
+:is(.xmas-copy, .shop-head)::after {
+  align-self: flex-start; font-family: var(--hand); font-weight: 400; font-size: clamp(1.375rem, 1.2rem + 0.8vw, 1.875rem); line-height: 1.3;
+  color: var(--yellow); rotate: -2.5deg; transform-origin: 0 50%;
+  padding-left: 3.1rem;
+  background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 40' fill='none' stroke='%23FFC42E' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'><path d='M56 30C42 36 22 34 8 14'/><path d='M6 28 7 13l14 5'/></svg>") left 40% / 2.6rem auto no-repeat;
+}
+.xmas-copy::after { content: "las fotos son de piezas ya impresas" / ""; }
+.shop-head::after { content: "se puede girar con el dedo" / ""; }
+
+/* A pencil line under the closing question. */
+.close h2::after {
+  content: ""; display: block; width: 3.4em; max-width: 100%; height: 0.16em; margin-top: 0.14em;
+  background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 16' preserveAspectRatio='none' fill='none' stroke='%23FFC42E' stroke-width='5' stroke-linecap='round'><path d='M4 9C40 3 62 13 98 7s58 6 96 1 62 5 102-2'/></svg>") 0 0 / 100% 100% no-repeat;
+}
+
+@media (min-width: 56rem) {
+  .hero-cube::after {
+    content: "recién salido de la impresora" / ""; position: absolute; left: 13%; top: 100%; width: 9.5rem;
+    font-family: var(--hand); font-weight: 400; font-size: 1.625rem; line-height: 1.3; color: var(--ink); rotate: -5deg;
+    padding-top: 3.2rem;
+    background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 40' fill='none' stroke='%231A2A6C' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 36C10 20 28 8 52 8'/><path d='M40 2l13 6-9 11'/></svg>") 30% 0 / 3.4rem auto no-repeat;
+  }
+}
+
+/* The footer link to WhatsApp is a button; the number itself is never printed. */
+.footer .btn { display: inline-flex; padding: 0.4em 1.1em; }
+
+/* ---- Christmas decorations --------------------------------------------------------------------
+   A string of lights under the clouds, chalk doodles on the night field, holly in the lower
+   corners and a small drawing next to each group name. All of it sits behind the content. */
+.xmas {
+  --xmas-lights: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 70' width='360' height='70'><path d='M0 6C90 46 270 46 360 6' fill='none' stroke='%23C9D6EA' stroke-width='2.5' stroke-linecap='round'/><g transform='translate(29.5 16.8) rotate(-14)' stroke='%230D1740' stroke-width='2.5' stroke-linejoin='round'><rect x='-4' y='-2' width='8' height='7' rx='2' fill='%23C9D6EA'/><path d='M-7 13c0-6 3-9 7-9s7 3 7 9c0 7-3 13-7 13s-7-6-7-13z' fill='%23E63B2E'/><path d='M-3 10c0-2 1-3 2-3' fill='none' stroke='%23fff' stroke-opacity='.8' stroke-linecap='round'/></g><g transform='translate(100.4 31.2) rotate(-7)' stroke='%230D1740' stroke-width='2.5' stroke-linejoin='round'><rect x='-4' y='-2' width='8' height='7' rx='2' fill='%23C9D6EA'/><path d='M-7 13c0-6 3-9 7-9s7 3 7 9c0 7-3 13-7 13s-7-6-7-13z' fill='%23FFC42E'/><path d='M-3 10c0-2 1-3 2-3' fill='none' stroke='%23fff' stroke-opacity='.8' stroke-linecap='round'/></g><g transform='translate(180 36) rotate(0)' stroke='%230D1740' stroke-width='2.5' stroke-linejoin='round'><rect x='-4' y='-2' width='8' height='7' rx='2' fill='%23C9D6EA'/><path d='M-7 13c0-6 3-9 7-9s7 3 7 9c0 7-3 13-7 13s-7-6-7-13z' fill='%238DD3F7'/><path d='M-3 10c0-2 1-3 2-3' fill='none' stroke='%23fff' stroke-opacity='.8' stroke-linecap='round'/></g><g transform='translate(259.6 31.2) rotate(7)' stroke='%230D1740' stroke-width='2.5' stroke-linejoin='round'><rect x='-4' y='-2' width='8' height='7' rx='2' fill='%23C9D6EA'/><path d='M-7 13c0-6 3-9 7-9s7 3 7 9c0 7-3 13-7 13s-7-6-7-13z' fill='%231E9E57'/><path d='M-3 10c0-2 1-3 2-3' fill='none' stroke='%23fff' stroke-opacity='.8' stroke-linecap='round'/></g><g transform='translate(330.5 16.8) rotate(14)' stroke='%230D1740' stroke-width='2.5' stroke-linejoin='round'><rect x='-4' y='-2' width='8' height='7' rx='2' fill='%23C9D6EA'/><path d='M-7 13c0-6 3-9 7-9s7 3 7 9c0 7-3 13-7 13s-7-6-7-13z' fill='%23FFFDF7'/><path d='M-3 10c0-2 1-3 2-3' fill='none' stroke='%23fff' stroke-opacity='.8' stroke-linecap='round'/></g></svg>");
+  --xmas-glow: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 70' width='360' height='70'><g transform='translate(100.4 31.2) rotate(-7)'><path d='M-7 13c0-6 3-9 7-9s7 3 7 9c0 7-3 13-7 13s-7-6-7-13z' fill='%23fff' fill-opacity='.6'/></g><g transform='translate(259.6 31.2) rotate(7)'><path d='M-7 13c0-6 3-9 7-9s7 3 7 9c0 7-3 13-7 13s-7-6-7-13z' fill='%23fff' fill-opacity='.6'/></g></svg>");
+  --xmas-doodles: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 520 520' width='520' height='520' fill='none' stroke='%238DD3F7' stroke-opacity='.27' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'> <g transform='translate(74 86) rotate(8)'><path d='M0-30V30M-26-15 26 15M-26 15 26-15M-7-23 0-16 7-23M-7 23 0 16 7 23M-24-5-16-9-17-18M24 5 16 9 17 18M-17 18-16 9-24 5M17-18 16-9 24-5'/></g> <g transform='translate(318 70) rotate(-10)'><path d='M0-24 7-8 24-7 11 4 15 21 0 12-15 21-11 4-24-7-7-8Z'/></g> <g transform='translate(432 236) rotate(14)'><path d='M0 0C-12-4-16-16-30-16-24-8-30-2-24 6-14 4-8 10 0 0ZM0 0C12-4 16-16 30-16 24-8 30-2 24 6 14 4 8 10 0 0Z'/><circle cx='-5' cy='10' r='5'/><circle cx='6' cy='11' r='5'/><circle cx='0' cy='19' r='5'/></g> <g transform='translate(168 262) rotate(-12)'><path d='M0 46V2a15 15 0 0 1 30 0v8M0 30l8-6M0 16l8-6M5-10l9 5M22-13l5 9'/></g> <g transform='translate(284 404) rotate(5)'><path d='M0-36-16-12h9L-24 10h14L-28 32h56L10 10h14L7-12h9ZM0 32v12'/></g> <g transform='translate(62 412) rotate(-6)'><circle r='20'/><path d='M-6-20v-7h12v7M0-27v-9M-17-6c10 6 24 6 34 0'/></g> <g transform='translate(452 438) rotate(20)'><path d='M0-14V14M-12-7 12 7M-12 7 12-7'/></g> <g transform='translate(208 132)'><path d='M0-9V9M-8-4.500 8 4.500M-8 4.500 8-4.500'/></g> <g stroke-width='5'><path d='M400 110h.01M130 360h.01M356 300h.01M30 240h.01M480 30h.01M230 480h.01'/></g> </svg>");
+  --holly-left: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 110' width='150' height='110'><g transform='' stroke='%230D1740' stroke-width='3.5' stroke-linejoin='round' stroke-linecap='round'> <path d='M70 74C52 80 44 66 26 70 30 60 20 54 12 44 24 44 28 34 30 22 40 30 50 24 60 20 58 32 68 38 66 50 70 58 72 66 70 74Z' fill='%231E9E57'/> <path d='M78 72C90 86 106 78 122 88 122 76 134 72 142 62 130 58 130 46 126 36 116 42 108 34 98 30 98 42 88 46 86 58 80 62 78 66 78 72Z' fill='%231E9E57'/> <path d='M66 68 30 40M82 68 124 58' fill='none' stroke-width='2.5'/> <circle cx='64' cy='84' r='10' fill='%23E63B2E'/><circle cx='84' cy='84' r='10' fill='%23E63B2E'/><circle cx='74' cy='70' r='10' fill='%23E63B2E'/> <path d='M60 80c1-2 2-3 4-3M80 80c1-2 2-3 4-3M70 66c1-2 2-3 4-3' fill='none' stroke='%23fff' stroke-width='2.5'/></g></svg>");
+  --holly-right: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 110' width='150' height='110'><g transform='translate(150 0) scale(-1 1)' stroke='%230D1740' stroke-width='3.5' stroke-linejoin='round' stroke-linecap='round'> <path d='M70 74C52 80 44 66 26 70 30 60 20 54 12 44 24 44 28 34 30 22 40 30 50 24 60 20 58 32 68 38 66 50 70 58 72 66 70 74Z' fill='%231E9E57'/> <path d='M78 72C90 86 106 78 122 88 122 76 134 72 142 62 130 58 130 46 126 36 116 42 108 34 98 30 98 42 88 46 86 58 80 62 78 66 78 72Z' fill='%231E9E57'/> <path d='M66 68 30 40M82 68 124 58' fill='none' stroke-width='2.5'/> <circle cx='64' cy='84' r='10' fill='%23E63B2E'/><circle cx='84' cy='84' r='10' fill='%23E63B2E'/><circle cx='74' cy='70' r='10' fill='%23E63B2E'/> <path d='M60 80c1-2 2-3 4-3M80 80c1-2 2-3 4-3M70 66c1-2 2-3 4-3' fill='none' stroke='%23fff' stroke-width='2.5'/></g></svg>");
+  background-image: var(--xmas-doodles), var(--mottle);
+  background-size: 520px 520px, 640px 640px;
+  padding-bottom: clamp(6rem, 12vw, 9.5rem);
+}
+.xmas-lights, .xmas-lights::after { position: absolute; inset: 0 0 auto; height: 70px; pointer-events: none; background: var(--xmas-lights) center top / 360px 70px repeat-x; }
+.xmas-lights::after { content: ""; background-image: var(--xmas-glow); animation: xmas-twinkle 1.8s ease-in-out infinite alternate; }
+@keyframes xmas-twinkle { from { opacity: 0; } to { opacity: 1; } }
+.xmas::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: calc(clamp(2rem, 4vw, 3.5rem) + 0.4rem); height: clamp(3rem, 5.5vw, 4.5rem); pointer-events: none;
+  background: var(--holly-left) left var(--gutter) bottom / auto 100% no-repeat, var(--holly-right) right var(--gutter) bottom / auto 100% no-repeat;
+}
+.xmas-group h3 { display: flex; align-items: center; gap: 0.5em; }
+.xmas-group h3::before { content: ""; flex: none; width: 1.25em; height: 1.25em; background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><g stroke='%230D1740' stroke-width='3' stroke-linejoin='round' stroke-linecap='round'><path d='M20 4 24.600 14.500 36 15.500 27.400 23 30 34.500 20 28.500 10 34.500 12.600 23 4 15.500 15.400 14.500Z' fill='%23FFC42E'/></g></svg>") center / contain no-repeat; rotate: -8deg; }
+.xmas-group:nth-child(2) h3::before { background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><g stroke='%230D1740' stroke-width='3' stroke-linejoin='round' stroke-linecap='round'><path d='M15 36V15a8 8 0 0 1 16 0v4' fill='none' stroke-width='10'/><path d='M15 36V15a8 8 0 0 1 16 0v4' fill='none' stroke='%23FFFDF7' stroke-width='5'/><path d='M12.500 30l5-4M12.500 22l5-4M15 10l4 3M25 7.500l0 5M29 14l4 2' fill='none' stroke='%23E63B2E' stroke-width='2.500'/></g></svg>"); rotate: 10deg; }
+.xmas-group:nth-child(3) h3::before { background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><g stroke='%230D1740' stroke-width='3' stroke-linejoin='round' stroke-linecap='round'><circle cx='20' cy='23' r='13' fill='%23E63B2E'/><rect x='16' y='5' width='8' height='6' rx='1.500' fill='%23FFC42E'/><path d='M9 21c7 4 15 4 22 0' fill='none' stroke='%23FFFDF7' stroke-width='2.500'/></g></svg>"); rotate: -4deg; }
+@media (max-width: 39.99rem) { .xmas-lights, .xmas-lights::after { height: 52px; background-size: 268px 52px; } }
+
+/* A plain nativity between the holly sprigs, standing on the cloud edge. */
+.xmas { --nativity: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 140' width='200' height='140'><g stroke='%230D1740' stroke-width='3.5' stroke-linejoin='round' stroke-linecap='round'> <rect x='33' y='70' width='9' height='58' fill='%23B4622A'/><rect x='158' y='70' width='9' height='58' fill='%23B4622A'/> <path d='M100 28 178 70 171 83 100 45 29 83 22 70Z' fill='%23B4622A'/> <path d='M100 3 103.800 11.200 112.500 12 106 18 108 26.500 100 22 92 26.500 94 18 87.500 12 96.200 11.200Z' fill='%23FFC42E'/> <rect x='20' y='124' width='160' height='12' rx='6' fill='%23FFC42E'/> <path d='M46 127C46 99 54 87 65 87S84 99 84 127Z' fill='%232B4FD1'/><circle cx='65' cy='79' r='9.500' fill='%23F6D9B8'/><path d='M54.500 82C53 70 59 66 65 66s12 4 10.500 16' fill='none' stroke='%232B4FD1' stroke-width='5'/> <path d='M116 127C116 95 124 81 136 81s20 14 20 46Z' fill='%23E63B2E'/><circle cx='136' cy='71' r='10.500' fill='%23F6D9B8'/><path d='M127 76c2 7 16 7 18 0' fill='%23B4622A'/> <path d='M90 124 112 108M112 124 90 108' fill='none' stroke-width='4'/><path d='M83 106H119L115 119H87Z' fill='%23B4622A'/> <ellipse cx='100' cy='102' rx='13' ry='6.500' fill='%23FFFDF7'/><circle cx='111' cy='99' r='5.500' fill='%23F6D9B8'/></g></svg>"); padding-bottom: clamp(8rem, 17vw, 13.5rem); }
+.xmas::after {
+  height: clamp(5rem, 10vw, 8.5rem);
+  background:
+    var(--nativity) center bottom / auto 100% no-repeat,
+    var(--holly-left) left var(--gutter) bottom / auto 55% no-repeat,
+    var(--holly-right) right var(--gutter) bottom / auto 55% no-repeat;
+}
+/* Desktop: the nativity is large enough to read as a scene; the holly keeps its size. */
+@media (min-width: 56rem) {
+  .xmas { padding-bottom: clamp(15rem, 22vw, 19rem); }
+  .xmas::after {
+    height: clamp(9.5rem, 15vw, 13rem);
+    background-size: auto 100%, auto 36%, auto 36%;
+  }
+}
+
+/* ---- Catalogue links ---------------------------------------------------------------------------
+   Each Christmas card leads to the piece's own page. */
+.xmas-photo { display: block; }
+.xmas-info :is(h3, h4) { margin: 0; font-size: 1.0625rem; font-weight: 900; line-height: 1.15; text-wrap: balance; }
+.xmas-info :is(h3, h4) a { color: inherit; text-decoration: none; }
+.xmas-info :is(h3, h4) a:hover { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 0.15em; }
+
+/* ---- A piece's page ----------------------------------------------------------------------------
+   Squared paper, the photo taped down like on the workshop table, the facts and one clear ask. */
+.piece {
+  background: var(--paper); color: var(--ink);
+  background-image: linear-gradient(rgba(43, 79, 209, 0.13) 1.5px, transparent 1.5px), linear-gradient(90deg, rgba(43, 79, 209, 0.13) 1.5px, transparent 1.5px);
+  background-size: 1.75rem 1.75rem;
+  padding: clamp(6.5rem, 12vw, 9rem) var(--gutter) clamp(4rem, 8vw, 6rem);
+}
+.crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin-bottom: 1.5rem; font-weight: 700; color: var(--soft); }
+.crumbs a { color: inherit; padding: 0.35rem 0; }
+.piece-grid { display: grid; gap: clamp(2rem, 5vw, 4rem); align-items: start; }
+.piece-photo {
+  position: relative; margin: 0; padding: 0.6rem; background: var(--white); border-radius: 0.4rem; rotate: -1deg;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3), 0 26px 30px -18px rgba(13, 23, 64, 0.6);
+}
+.piece-photo img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; border-radius: 0.2rem; background: var(--rule); }
+.piece-photo::before, .piece-photo::after {
+  content: ""; position: absolute; z-index: 1; top: -0.9rem; width: 5rem; height: 1.6rem;
+  background: var(--tape) repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.22) 0 2px, transparent 2px 7px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+.piece-photo::before { left: -1.4rem; rotate: -36deg; }
+.piece-photo::after { right: -1.4rem; rotate: 36deg; background-color: rgba(230, 59, 46, 0.82); }
+.piece-info { display: flex; flex-direction: column; gap: 1.1rem; }
+.piece-group { font-weight: 800; color: var(--blue); }
+.piece h1 { font-size: clamp(2.5rem, 1.6rem + 3.4vw, 4rem); line-height: 1.02; text-wrap: balance; }
+.piece-price { font-size: clamp(2rem, 1.6rem + 1.6vw, 2.75rem); font-weight: 900; font-variant-numeric: tabular-nums; }
+.piece-price small { font-size: 0.5em; font-weight: 700; }
+.piece-facts { display: grid; gap: 0.5rem; margin: 0; font-size: var(--text); }
+.piece-facts div { display: grid; grid-template-columns: 6.5rem 1fr; gap: 1rem; padding-bottom: 0.5rem; border-bottom: 2px dashed var(--rule); }
+.piece-facts dt { font-weight: 800; color: var(--soft); }
+.piece-facts dd { margin: 0; font-weight: 700; }
+.piece .field { max-width: 22rem; }
+.piece select { width: 100%; min-height: 3rem; padding: 0 0.9rem; border: var(--line) solid var(--ink); border-radius: 0.8rem; background: var(--white); color: var(--ink); font: inherit; font-weight: 700; }
+.piece .actions { align-items: center; }
+.piece .btn.is-added { background: var(--pine, #1E9E57); color: var(--white); }
+.piece-note { font-weight: 800; }
+.piece-foot { max-width: 30rem; font-size: 0.9375rem; line-height: 1.4; color: var(--soft); }
+.piece-more { padding-top: clamp(3.5rem, 7vw, 5.5rem); }
+.piece-more h2 { font-size: var(--h3); }
+.piece-more .xmas-group { gap: 1.75rem; }
+@media (max-width: 55.99rem) { .piece .actions .btn { width: 100%; } }
+@media (min-width: 56rem) { .piece-grid { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr); } }
