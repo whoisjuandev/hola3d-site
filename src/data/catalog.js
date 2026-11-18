@@ -88,7 +88,7 @@ export const CHRISTMAS = [
       {id: 'nav-pesebre-love', name: 'Pesebre Love', price: 8000, size: '15 cm', image: 'pesebre-love', alt: 'La palabra love en blanco con la Sagrada Familia entre las letras'},
       {id: 'nav-pesebre-colorear', name: 'Pesebre para colorear', price: 23000, size: '25 x 16 cm', image: 'pesebre-colorear', alt: 'Pesebre con figuras blancas para pintar bajo un techo rojo con estrella'},
       {id: 'nav-pesebre', name: 'Pesebre', price: 8000, size: '8,5 cm', blurb: 'Diseño minimalista y moderno.', image: 'pesebre', alt: 'José y María con el niño, en una sola pieza de líneas simples'},
-      {id: 'nav-pesebre-minimalista', name: 'Pesebre minimalista', price: 14500, size: '10 cm', image: 'pesebre-minimalista', alt: 'María, José y el niño en un establo blanco con una estrella en el techo'},
+      {id: 'nav-pesebre-minimalista', name: 'Pesebre minimalista', price: 9300, size: '10 cm', image: 'pesebre-minimalista', alt: 'María, José y el niño en un establo blanco con una estrella en el techo'},
     ],
   },
   {
