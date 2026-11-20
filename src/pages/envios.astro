@@ -1,0 +1,35 @@
+---
+import PolicyPage from '../components/PolicyPage.astro';
+import {BUSINESS, ORDERS, PLACE} from '../data/site.js';
+
+const {makingDays, shipWithinDays} = ORDERS;
+---
+<PolicyPage
+  title="Envíos · Hola3D"
+  description={`Cómo enviamos los pedidos de Hola3D: a todo el país desde ${PLACE}, costo cotizado por WhatsApp y despacho dentro de los ${shipWithinDays} días hábiles.`}
+  heading="Política de envíos"
+  updated="20 de noviembre de 2026"
+>
+  <h2>Dónde enviamos</h2>
+  <p>Enviamos a todo el territorio de la República Argentina desde {PLACE}.</p>
+
+  <h2>Costo del envío</h2>
+  <p>El costo del envío no está incluido en el precio de los productos. Se calcula según el destino, el tamaño y el peso del pedido, y te lo informamos por WhatsApp antes de que confirmes la compra. No se cobra ningún envío que no hayas aceptado antes.</p>
+
+  <h2>Plazos</h2>
+  <ul>
+    <li><strong>Fabricación:</strong> cada pieza se imprime a pedido. Tarda de {makingDays.min} a {makingDays.max} días hábiles, según la cantidad de productos.</li>
+    <li><strong>Despacho:</strong> el pedido se despacha dentro de los {shipWithinDays} días hábiles posteriores a la confirmación del pedido.</li>
+    <li><strong>Entrega:</strong> desde el despacho, el plazo depende del correo y del destino. Te informamos el plazo estimado junto con el costo.</li>
+  </ul>
+  <p>Los días hábiles son de lunes a viernes, sin contar feriados nacionales.</p>
+
+  <h2>Seguimiento</h2>
+  <p>Cuando despachamos el pedido te enviamos por WhatsApp o por correo electrónico el número de seguimiento del correo.</p>
+
+  <h2>Demoras y problemas con el envío</h2>
+  <p>Si el pedido no llega en el plazo informado, o llega dañado, escribinos a <a href={`mailto:${BUSINESS.email}`}>{BUSINESS.email}</a> o por WhatsApp. Si un producto llega dañado por el transporte, lo reponemos o te devolvemos el dinero, sin costo para vos.</p>
+
+  <h2>Más información</h2>
+  <p>Para cambios, devoluciones y el derecho de arrepentimiento, mirá la <a href="/devoluciones/">política de cambios y devoluciones</a>.</p>
+</PolicyPage>

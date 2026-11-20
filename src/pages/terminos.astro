@@ -1,0 +1,35 @@
+---
+import PolicyPage from '../components/PolicyPage.astro';
+import {BUSINESS, CONSUMER_COMPLAINTS, PLACE} from '../data/site.js';
+---
+<PolicyPage
+  title="Términos y condiciones · Hola3D"
+  description="Condiciones de venta de Hola3D: cómo se hacen los pedidos, precios, pagos, envíos, devoluciones y datos del vendedor."
+  heading="Términos y condiciones"
+  updated="20 de noviembre de 2026"
+>
+  <h2>Quién vende</h2>
+  <p>{BUSINESS.legalName} (nombre de fantasía {BUSINESS.name}), CUIT {BUSINESS.taxId}, con domicilio en {PLACE}, Argentina. Correo electrónico: <a href={`mailto:${BUSINESS.email}`}>{BUSINESS.email}</a>.</p>
+
+  <h2>Cómo se hace un pedido</h2>
+  <p>En este sitio podés ver el catálogo y armar un pedido. La compra no se hace en el sitio: el pedido se envía por WhatsApp, donde confirmamos disponibilidad, variantes, costo de envío, plazos y forma de pago. El contrato queda celebrado cuando aceptás esas condiciones y se confirma el pago.</p>
+
+  <h2>Precios</h2>
+  <p>Los precios están expresados en pesos argentinos e incluyen los impuestos que correspondan. No incluyen el envío, que se cotiza por separado. El precio que vale es el publicado al momento de confirmar el pedido.</p>
+
+  <h2>Productos</h2>
+  <p>Cada pieza se imprime en 3D a pedido. Las fotos son ilustrativas: puede haber pequeñas diferencias de color, textura y terminación propias de la técnica. Las medidas publicadas son aproximadas.</p>
+
+  <h2>Envíos, cambios y devoluciones</h2>
+  <p>Los plazos y costos de envío están en la <a href="/envios/">política de envíos</a>. El derecho de arrepentimiento, los cambios y la garantía están en la <a href="/devoluciones/">política de cambios y devoluciones</a>.</p>
+
+  <h2>Datos personales</h2>
+  <p>El uso de tus datos se rige por la <a href="/privacidad/">política de privacidad</a>.</p>
+
+  <h2>Propiedad intelectual</h2>
+  <p>Los textos, fotos, marcas y diseños propios de este sitio pertenecen a {BUSINESS.legalName} y no pueden usarse sin autorización.</p>
+
+  <h2>Defensa del consumidor</h2>
+  <p>Estos términos se rigen por las leyes de la República Argentina, en especial la Ley 24.240 de Defensa del Consumidor y el Código Civil y Comercial de la Nación. Ninguna condición limita los derechos que esas leyes te dan.</p>
+  <p>Para reclamos podés escribirnos a <a href={`mailto:${BUSINESS.email}`}>{BUSINESS.email}</a> o acudir a la <a href={CONSUMER_COMPLAINTS} target="_blank" rel="noopener">Dirección Nacional de Defensa del Consumidor</a> o a la oficina de defensa del consumidor de tu provincia.</p>
+</PolicyPage>

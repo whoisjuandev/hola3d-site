@@ -1,0 +1,30 @@
+---
+// A legal or policy page: same squared paper as a piece's page, a readable column of text.
+import Layout from '../layouts/Layout.astro';
+import {BUSINESS} from '../data/site.js';
+
+const {title, description, heading, updated} = Astro.props;
+const url = new URL(Astro.url.pathname, Astro.site).href;
+const trail = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {'@type': 'ListItem', position: 1, name: BUSINESS.name, item: Astro.site.href},
+    {'@type': 'ListItem', position: 2, name: heading, item: url},
+  ],
+};
+---
+<Layout title={title} description={description} themeColor="#F5F0E3" schema={[trail]}>
+  <main id="contenido">
+    <section class="piece">
+      <nav class="crumbs" aria-label="Ruta">
+        <a href="/">Hola3D</a> <span aria-hidden="true">›</span> <span aria-current="page">{heading}</span>
+      </nav>
+      <article class="legal">
+        <h1>{heading}</h1>
+        <p class="legal-updated">Última actualización: {updated}</p>
+        <slot />
+      </article>
+    </section>
+  </main>
+</Layout>

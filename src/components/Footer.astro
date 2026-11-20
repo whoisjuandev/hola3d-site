@@ -1,10 +1,15 @@
 ---
 import WhatsAppIcon from './WhatsAppIcon.astro';
-import {BUSINESS, PLACE} from '../data/site.js';
+import {BUSINESS, CONSUMER_COMPLAINTS, PLACE, POLICIES} from '../data/site.js';
 ---
 <footer class="footer">
   <p class="footer-mark">Hola3D</p>
   <p>{BUSINESS.tagline}</p>
   <p>{PLACE}. {BUSINESS.shipping}.</p>
   <a class="btn btn-white btn-small" data-whatsapp-plain href="/#pedido" target="_blank" rel="noopener"><WhatsAppIcon />Pedidos por WhatsApp</a>
+  <nav class="footer-legal" aria-label="Políticas">
+    <a href="/devoluciones/#arrepentimiento">Botón de arrepentimiento</a>
+    {POLICIES.map((policy) => <a href={policy.href}>{policy.label}</a>)}
+    <a href={CONSUMER_COMPLAINTS} target="_blank" rel="noopener">Defensa de las y los consumidores. Para reclamos ingrese aquí</a>
+  </nav>
 </footer>

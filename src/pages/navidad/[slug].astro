@@ -5,7 +5,7 @@ import WhatsAppIcon from '../../components/WhatsAppIcon.astro';
 import XmasCard from '../../components/XmasCard.astro';
 import {christmasItems, formatPrice, pieceUrl, WHATSAPP} from '../../data/catalog.js';
 import {photoOf} from '../../data/photos.js';
-import {BUSINESS, PLACE} from '../../data/site.js';
+import {BUSINESS, PLACE, returnPolicy} from '../../data/site.js';
 
 export function getStaticPaths() {
   return christmasItems().map((item) => ({params: {slug: item.slug}, props: {item}}));
@@ -38,7 +38,8 @@ const product = {
     url,
     price: item.price,
     priceCurrency: 'ARS',
-    availability: 'https://schema.org/MadeToOrder',
+    availability: 'https://schema.org/InStock',
+    hasMerchantReturnPolicy: returnPolicy(Astro.site),
     seller: {'@id': new URL('/#negocio', Astro.site).href},
     areaServed: {'@type': 'Country', name: 'Argentina'},
   },
@@ -71,7 +72,7 @@ const trail = {
             <div><dt>Medida</dt><dd>{item.size}</dd></div>
             {item.blurb && <div><dt>Detalle</dt><dd>{item.blurb}</dd></div>}
             <div><dt>Hecho en</dt><dd>{PLACE}, impreso en 3D a pedido</dd></div>
-            <div><dt>Envíos</dt><dd>A todo el país</dd></div>
+            <div><dt>Envíos</dt><dd>A todo el país. <a href="/envios/">Costos y plazos</a></dd></div>
           </dl>
           {item.variants && (
             <div class="field">

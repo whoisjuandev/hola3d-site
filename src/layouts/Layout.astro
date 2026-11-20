@@ -3,7 +3,7 @@ import '../styles/styles.css';
 import fontUrl from '../assets/AlloVariable.woff2?url';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
-import {BUSINESS, PLACE} from '../data/site.js';
+import {BUSINESS, PLACE, returnPolicy} from '../data/site.js';
 
 const {title, description, home = false, image = '/assets/og.jpg', themeColor = '#8DD3F7', schema = []} = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
@@ -17,6 +17,10 @@ const business = {
   description: `Impresión 3D a pedido en ${PLACE}. ${BUSINESS.shipping}. Los pedidos se hacen por WhatsApp.`,
   url: Astro.site.href,
   telephone: BUSINESS.phone,
+  email: BUSINESS.email,
+  legalName: BUSINESS.legalName,
+  taxID: BUSINESS.taxId,
+  hasMerchantReturnPolicy: returnPolicy(Astro.site),
   logo: new URL('/assets/cubo.svg', Astro.site).href,
   image: imageUrl.href,
   address: {'@type': 'PostalAddress', addressLocality: BUSINESS.city, addressRegion: BUSINESS.province, addressCountry: BUSINESS.country},

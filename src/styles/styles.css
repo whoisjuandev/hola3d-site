@@ -489,6 +489,26 @@ input[type="text"]:focus-visible, textarea:focus-visible { outline-offset: 2px; 
 }
 .footer-mark { font-size: 2rem; font-weight: 900; letter-spacing: -0.01em; margin-right: auto; }
 .footer a { display: inline-block; padding: 0.7rem 0; font-weight: 800; }
+.footer-legal {
+  flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 0 1.1rem;
+  margin-top: 1.25rem; padding-top: 0.6rem; border-top: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 0.75rem; opacity: 0.75;
+}
+.footer .footer-legal a { padding: 0.35rem 0; font-weight: 600; }
+
+/* ---- Policy pages ---------------------------------------------------------------------------- */
+.legal {
+  max-width: 44rem; padding: clamp(1.5rem, 4vw, 3rem); background: var(--white); border-radius: 0.4rem;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3), 0 26px 30px -18px rgba(13, 23, 64, 0.45);
+  font-size: var(--text); line-height: 1.55;
+}
+.legal h1 { margin-bottom: 0.25rem; }
+.legal-updated { color: var(--soft); font-size: 0.9375rem; margin-bottom: 1.5rem; }
+.legal h2 { margin: 2rem 0 0.6rem; font-size: clamp(1.35rem, 1.1rem + 0.8vw, 1.75rem); line-height: 1.15; scroll-margin-top: 6rem; }
+.legal p, .legal ul { margin: 0 0 0.9rem; }
+.legal ul { padding-left: 1.25rem; }
+.legal li + li { margin-top: 0.4rem; }
+.legal a:not(.btn) { color: var(--blue); font-weight: 700; text-underline-offset: 0.15em; }
 
 /* ---- Order bar (phones) --------------------------------------------------------------------- */
 .order-bar {

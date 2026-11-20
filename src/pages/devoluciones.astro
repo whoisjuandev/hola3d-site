@@ -1,0 +1,33 @@
+---
+import PolicyPage from '../components/PolicyPage.astro';
+import {BUSINESS, ORDERS} from '../data/site.js';
+
+const {withdrawalDays} = ORDERS;
+const mail = `mailto:${BUSINESS.email}?subject=${encodeURIComponent('Arrepentimiento de compra')}`;
+---
+<PolicyPage
+  title="Cambios, devoluciones y arrepentimiento · Hola3D"
+  description={`Derecho de arrepentimiento de ${withdrawalDays} días, cambios y garantía de los productos de Hola3D, según la Ley 24.240 de Defensa del Consumidor.`}
+  heading="Cambios y devoluciones"
+  updated="20 de noviembre de 2026"
+>
+  <h2 id="arrepentimiento">Botón de arrepentimiento</h2>
+  <p>Si compraste a distancia (por WhatsApp o desde este sitio), podés arrepentirte de la compra dentro de los <strong>{withdrawalDays} días corridos</strong> desde que recibiste el producto o desde que se hizo el pedido, lo que ocurra último. No tenés que dar ningún motivo y no tiene costo para vos (artículo 34 de la Ley 24.240 y artículos 1110 a 1116 del Código Civil y Comercial).</p>
+  <p>Para pedir la revocación, escribinos por el mismo medio por el que compraste o a <a href={`mailto:${BUSINESS.email}`}>{BUSINESS.email}</a> con tu nombre, el número de teléfono con el que hiciste el pedido y los productos. Dentro de las 24 horas te enviamos un código de identificación del trámite (Resolución 424/2020 de la Secretaría de Comercio Interior).</p>
+  <p><a class="btn btn-yellow" href={mail}>Arrepentirme de una compra</a></p>
+  <p>Cuando recibimos el producto, te devolvemos el total pagado, incluido el envío, por el mismo medio de pago o el que acordemos. Los gastos de la devolución corren por nuestra cuenta.</p>
+  <p>El producto tiene que volver sin uso y en el estado en que lo recibiste.</p>
+
+  <h2>Productos personalizados</h2>
+  <p>Los productos hechos según tus indicaciones, por ejemplo con un nombre, un texto, una medida o un diseño que nos enviaste, no admiten arrepentimiento (artículo 1116 del Código Civil y Comercial), salvo que tengan una falla. Antes de fabricarlos te mostramos los detalles para que los confirmes.</p>
+
+  <h2>Cambios</h2>
+  <p>Si querés cambiar un producto del catálogo por otro, escribinos dentro de los {withdrawalDays} días corridos desde que lo recibiste. Si el producto nuevo tiene otro precio, se paga o se devuelve la diferencia. El envío del cambio corre por tu cuenta, salvo que el producto tenga una falla.</p>
+
+  <h2>Garantía por fallas</h2>
+  <p>Todos los productos tienen la garantía legal de 3 meses desde la entrega (artículo 11 de la Ley 24.240). Si un producto tiene una falla de fabricación o llega dañado, te lo reparamos, lo reponemos o te devolvemos el dinero, a tu elección, sin costo de envío.</p>
+  <p>Cada pieza se imprime capa por capa, así que las marcas de capa y las pequeñas diferencias de color entre una pieza y otra son propias de la técnica y no se consideran fallas.</p>
+
+  <h2>Contacto</h2>
+  <p>{BUSINESS.name}, de {BUSINESS.legalName} · CUIT {BUSINESS.taxId} · <a href={`mailto:${BUSINESS.email}`}>{BUSINESS.email}</a></p>
+</PolicyPage>
